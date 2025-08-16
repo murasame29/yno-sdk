@@ -135,8 +135,17 @@ func (c *Client) Do(ctx context.Context, method, path string, requestBody, respo
 	return nil
 }
 
-func (c *Client) Get(ctx context.Context, path string, responseBody any) error {
-	return c.Do(ctx, http.MethodGet, path, nil, responseBody)
+func (c *Client) Get(ctx context.Context, path string, query map[string]string, responseBody any) error {
+	url, _ := url.Parse(path)
+	q := url.Query()
+
+	for k, v := range query {
+		q.Set(k, v)
+	}
+
+	url.RawQuery = q.Encode()
+
+	return c.Do(ctx, http.MethodGet, url.String(), nil, responseBody)
 }
 
 func (c *Client) Post(ctx context.Context, path string, requestBody, responseBody any) error {

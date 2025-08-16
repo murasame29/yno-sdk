@@ -6,9 +6,19 @@ import (
 )
 
 type SearchRouterRequest struct {
-	PageSize  int                `json:"PageSize,omitempty" validate:"gte=5,lte=100"`
+	PageSize  *int               `json:"PageSize,omitempty"`
 	Query     *SearchRouterQuery `json:"Query,omitempty"`
-	PageToken string             `json:"PageToken,omitempty"`
+	PageToken *string            `json:"PageToken,omitempty"`
+}
+
+func (p *SearchRouterRequest) Validate() error {
+	if p.PageSize != nil {
+		if *p.PageSize < 5 || *p.PageSize < 100 {
+			return ValidateErrorNotMatch{"PageSize", " 5 <= x <= 100"}
+		}
+	}
+
+	return nil
 }
 
 type SearchRouterQuery struct {
@@ -56,14 +66,26 @@ type RouterAssignedObject struct {
 	AssignedUsers  []string `json:"AssignedUsers,omitempty"`
 }
 
+func (p RouterAssignedObject) Validate() error {
+	if p.AssignedLabels != nil && len(p.AssignedLabels) == 0 {
+		return ValidateErrorNotMatch{"AssignedLabels", "not empty"}
+	}
+
+	if p.AssignedUsers != nil && len(p.AssignedUsers) == 0 {
+		return ValidateErrorNotMatch{"AssignedUsers", "not empty"}
+	}
+
+	return nil
+}
+
 type SearchRouterResponse struct {
 	Meta     MetaData                 `json:"Meta"`
 	Data     SearchRouterResponseData `json:"Data"`
-	Warnings []Warning                `json:"Warnings,omitempty"`
+	Warnings []Warning                `json:"Warnings"`
 }
 
 type SearchRouterResponseData struct {
-	NextPageToken string                 `json:"NextPageToken,omitempty"`
+	NextPageToken string                 `json:"NextPageToken"`
 	Routers       []RouterResponseRouter `json:"Routers"`
 }
 
@@ -83,6 +105,10 @@ type UpdateRotuerResponse struct {
 }
 
 func (c *ynoClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterRequest) (*SearchRouterResponse, error) {
+	if err := requestBody.Validate(); err != nil {
+		return nil, err
+	}
+
 	var responseBody SearchRouterResponse
 	err := c.client.Post(ctx, "routers/_search", requestBody, &responseBody)
 	if err != nil {
@@ -93,6 +119,10 @@ func (c *ynoClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterR
 }
 
 func (c *ynoClient) UpdateRotuer(ctx context.Context, serialNumber string, requestBody *RouterAssignedObject) (*UpdateRotuerResponse, error) {
+	if err := requestBody.Validate(); err != nil {
+		return nil, err
+	}
+
 	var responseBody UpdateRotuerResponse
 	err := c.client.Put(ctx, fmt.Sprintf("routers/%s", serialNumber), requestBody, &responseBody)
 	if err != nil {

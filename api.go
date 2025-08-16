@@ -1,6 +1,8 @@
 package yno
 
-import "github.com/murasame29/yno-sdk/client"
+import (
+	"github.com/murasame29/yno-sdk/client"
+)
 
 type ynoClient struct {
 	APIKey        string

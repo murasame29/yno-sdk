@@ -206,7 +206,7 @@ type DeleteUserResponseData struct {
 	Result string `json:"Result"`
 }
 
-func (c *ynoClient) CreateUser(ctx context.Context, requestBody *CreateUserRequest) (*CreateuserResponse, error) {
+func (c *YNOClient) CreateUser(ctx context.Context, requestBody *CreateUserRequest) (*CreateuserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -220,7 +220,7 @@ func (c *ynoClient) CreateUser(ctx context.Context, requestBody *CreateUserReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) SearchUser(ctx context.Context, requestBody *SearchUserRequest) (*SearchUserResponse, error) {
+func (c *YNOClient) SearchUser(ctx context.Context, requestBody *SearchUserRequest) (*SearchUserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -234,7 +234,7 @@ func (c *ynoClient) SearchUser(ctx context.Context, requestBody *SearchUserReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) UpdateUser(ctx context.Context, accountName string, requestBody *UpdateUserRequest) (*UpdateUserResponse, error) {
+func (c *YNOClient) UpdateUser(ctx context.Context, accountName string, requestBody *UpdateUserRequest) (*UpdateUserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -248,7 +248,7 @@ func (c *ynoClient) UpdateUser(ctx context.Context, accountName string, requestB
 	return &responseBody, nil
 }
 
-func (c *ynoClient) DeleteUser(ctx context.Context, accountName string) (*DeleteUserResponse, error) {
+func (c *YNOClient) DeleteUser(ctx context.Context, accountName string) (*DeleteUserResponse, error) {
 	var responseBody DeleteUserResponse
 	err := c.client.Delete(ctx, fmt.Sprintf("/users/%s", accountName), &responseBody)
 	if err != nil {

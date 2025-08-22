@@ -4,13 +4,13 @@ import (
 	"github.com/murasame29/yno-sdk/client"
 )
 
-type ynoClient struct {
+type YNOClient struct {
 	APIKey        string
 	MngAPIVersion string
 	client        *client.Client
 }
 
-func NewClient(apiKey string, MngAPIVersion string, opts ...client.Option) (*ynoClient, error) {
+func NewClient(apiKey string, MngAPIVersion string, opts ...client.Option) (*YNOClient, error) {
 	opts = append(opts, client.WithYnoAPIkey(apiKey), client.WithYnoVersion(MngAPIVersion))
 
 	client, err := client.NewClient("https://yno-mngapi.netvolante.jp", opts...)
@@ -18,7 +18,7 @@ func NewClient(apiKey string, MngAPIVersion string, opts ...client.Option) (*yno
 		return nil, err
 	}
 
-	return &ynoClient{
+	return &YNOClient{
 		APIKey:        apiKey,
 		MngAPIVersion: MngAPIVersion,
 		client:        client,

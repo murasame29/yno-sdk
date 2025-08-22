@@ -108,7 +108,7 @@ type DeviceStatistic struct {
 	Value     int `json:"Val"`
 }
 
-func (c *ynoClient) GetDeviceStatistic(ctx context.Context, requestBody *GetDeviceStatsRequest) (*GetDeviceStatsResponse, error) {
+func (c *YNOClient) GetDeviceStatistic(ctx context.Context, requestBody *GetDeviceStatsRequest) (*GetDeviceStatsResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}

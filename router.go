@@ -104,7 +104,7 @@ type UpdateRotuerResponse struct {
 	Data RouterResponseRouter `json:"Data"`
 }
 
-func (c *ynoClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterRequest) (*SearchRouterResponse, error) {
+func (c *YNOClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterRequest) (*SearchRouterResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (c *ynoClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterR
 	return &responseBody, nil
 }
 
-func (c *ynoClient) UpdateRotuer(ctx context.Context, serialNumber string, requestBody *RouterAssignedObject) (*UpdateRotuerResponse, error) {
+func (c *YNOClient) UpdateRotuer(ctx context.Context, serialNumber string, requestBody *RouterAssignedObject) (*UpdateRotuerResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}

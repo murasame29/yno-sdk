@@ -208,7 +208,7 @@ type DeleteUserResponseData struct {
 	Result string `json:"Result"`
 }
 
-func (c *ynoClient) CreateUser(ctx context.Context, requestBody *CreateUserRequest, opts ...OptionFunc) (*CreateuserResponse, error) {
+func (c *YNOClient) CreateUser(ctx context.Context, requestBody *CreateUserRequest, opts ...OptionFunc) (*CreateuserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -227,7 +227,7 @@ func (c *ynoClient) CreateUser(ctx context.Context, requestBody *CreateUserReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) SearchUser(ctx context.Context, requestBody *SearchUserRequest, opts ...OptionFunc) (*SearchUserResponse, error) {
+func (c *YNOClient) SearchUser(ctx context.Context, requestBody *SearchUserRequest, opts ...OptionFunc) (*SearchUserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func (c *ynoClient) SearchUser(ctx context.Context, requestBody *SearchUserReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) UpdateUser(ctx context.Context, accountName string, requestBody *UpdateUserRequest, opts ...OptionFunc) (*UpdateUserResponse, error) {
+func (c *YNOClient) UpdateUser(ctx context.Context, accountName string, requestBody *UpdateUserRequest, opts ...OptionFunc) (*UpdateUserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -265,7 +265,7 @@ func (c *ynoClient) UpdateUser(ctx context.Context, accountName string, requestB
 	return &responseBody, nil
 }
 
-func (c *ynoClient) DeleteUser(ctx context.Context, accountName string, opts ...OptionFunc) (*DeleteUserResponse, error) {
+func (c *YNOClient) DeleteUser(ctx context.Context, accountName string, opts ...OptionFunc) (*DeleteUserResponse, error) {
 	var clientOpts []client.Option
 	for _, optFunc := range opts {
 		clientOpts = optFunc(clientOpts)

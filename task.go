@@ -126,7 +126,7 @@ type CommandResultDetail struct {
 	ExitCode ExitCode `json:"ExitCode"`
 }
 
-func (c *ynoClient) CreateTask(ctx context.Context, requestBody *CreateTaskRequest, opts ...OptionFunc) (*CreateTaskResponse, error) {
+func (c *YNOClient) CreateTask(ctx context.Context, requestBody *CreateTaskRequest, opts ...OptionFunc) (*CreateTaskResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (c *ynoClient) CreateTask(ctx context.Context, requestBody *CreateTaskReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) GetExecuteTask(ctx context.Context, taskID string, requestQuery *GetExecuteTaskQuery, opts ...OptionFunc) (*ExecuteTaskResponse, error) {
+func (c *YNOClient) GetExecuteTask(ctx context.Context, taskID string, requestQuery *GetExecuteTaskQuery, opts ...OptionFunc) (*ExecuteTaskResponse, error) {
 	if err := requestQuery.Validate(); err != nil {
 		return nil, err
 	}

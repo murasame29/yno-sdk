@@ -15,16 +15,6 @@ const (
 	defaultTimeout = 30 * time.Second
 )
 
-type HTTPError struct {
-	StatusCode int
-	Message    string
-	Body       string
-}
-
-func (e *HTTPError) Error() string {
-	return fmt.Sprintf("API error: status code %d, message: %s", e.StatusCode, e.Message)
-}
-
 type Client struct {
 	httpClient *http.Client
 	baseURL    *url.URL
@@ -51,20 +41,6 @@ func WithHTTPClient(hc *http.Client) Option {
 	}
 }
 
-func WithYnoVersion(version string) Option {
-	return func(c *Client) {
-		if len(version) != 0 {
-			c.headers.Add("X-Yamaha-YNO-MngAPI-Version", version)
-		}
-	}
-}
-
-func WithYnoAPIkey(apiKey string) Option {
-	return func(c *Client) {
-		c.headers.Add("X-Yamaha-YNO-MngAPI-Key", apiKey)
-	}
-}
-
 func NewClient(baseURLStr string, opts ...Option) (*Client, error) {
 	baseURL, err := url.Parse(baseURLStr)
 	if err != nil {
@@ -79,8 +55,6 @@ func NewClient(baseURLStr string, opts ...Option) (*Client, error) {
 		headers: http.Header{},
 	}
 
-	c.headers.Set("Content-Type", "application/json")
-
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -88,7 +62,22 @@ func NewClient(baseURLStr string, opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) Do(ctx context.Context, method, path string, requestBody, responseBody any) error {
+func (c *Client) clone() *Client {
+	newHTTPClient := &http.Client{
+		Transport:     c.httpClient.Transport,
+		CheckRedirect: c.httpClient.CheckRedirect,
+		Jar:           c.httpClient.Jar,
+		Timeout:       c.httpClient.Timeout,
+	}
+
+	return &Client{
+		httpClient: newHTTPClient,
+		baseURL:    c.baseURL,
+		headers:    c.headers.Clone(),
+	}
+}
+
+func (c *Client) do(ctx context.Context, method, path string, requestBody, responseBody any) error {
 	rel, err := url.Parse(path)
 	if err != nil {
 		return fmt.Errorf("invalid path: %w", err)
@@ -135,27 +124,46 @@ func (c *Client) Do(ctx context.Context, method, path string, requestBody, respo
 	return nil
 }
 
-func (c *Client) Get(ctx context.Context, path string, query map[string]string, responseBody any) error {
-	url, _ := url.Parse(path)
-	q := url.Query()
+func (c *Client) Do(ctx context.Context, method, path string, requestBody, responseBody any, opts ...Option) error {
+	if len(opts) == 0 {
+		return c.do(ctx, method, path, requestBody, responseBody)
+	}
+
+	clonedClient := c.clone()
+	for _, opt := range opts {
+		if opt != nil {
+			opt(clonedClient)
+		}
+	}
+	return clonedClient.do(ctx, method, path, requestBody, responseBody)
+}
+
+func (c *Client) Get(ctx context.Context, path string, query map[string]string, responseBody any, clientOpts ...Option) error {
+	u, err := url.Parse(path)
+	if err != nil {
+		return fmt.Errorf("invalid path: %w", err)
+	}
+	q := u.Query()
 
 	for k, v := range query {
 		q.Set(k, v)
 	}
 
-	url.RawQuery = q.Encode()
+	u.RawQuery = q.Encode()
 
-	return c.Do(ctx, http.MethodGet, url.String(), nil, responseBody)
+	return c.Do(ctx, http.MethodGet, u.String(), nil, responseBody, clientOpts...)
 }
 
-func (c *Client) Post(ctx context.Context, path string, requestBody, responseBody any) error {
-	return c.Do(ctx, http.MethodPost, path, requestBody, responseBody)
+func (c *Client) Post(ctx context.Context, path string, requestBody, responseBody any, clientOpts ...Option) error {
+	clientOpts = append(clientOpts, WithHeader("Content-Type", "application/json"))
+	return c.Do(ctx, http.MethodPost, path, requestBody, responseBody, clientOpts...)
 }
 
-func (c *Client) Put(ctx context.Context, path string, requestBody, responseBody any) error {
-	return c.Do(ctx, http.MethodPut, path, requestBody, responseBody)
+func (c *Client) Put(ctx context.Context, path string, requestBody, responseBody any, clientOpts ...Option) error {
+	clientOpts = append(clientOpts, WithHeader("Content-Type", "application/json"))
+	return c.Do(ctx, http.MethodPut, path, requestBody, responseBody, clientOpts...)
 }
 
-func (c *Client) Delete(ctx context.Context, path string, responseBody any) error {
-	return c.Do(ctx, http.MethodDelete, path, nil, responseBody)
+func (c *Client) Delete(ctx context.Context, path string, responseBody any, clientOpts ...Option) error {
+	return c.Do(ctx, http.MethodDelete, path, nil, responseBody, clientOpts...)
 }

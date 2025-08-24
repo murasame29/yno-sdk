@@ -10,17 +10,18 @@ type ynoClient struct {
 	client        *client.Client
 }
 
-func NewClient(apiKey string, MngAPIVersion string, opts ...client.Option) (*ynoClient, error) {
-	opts = append(opts, client.WithYnoAPIkey(apiKey), client.WithYnoVersion(MngAPIVersion))
+const YNO_BASE_URL = "https://yno-mngapi.netvolante.jp"
 
-	client, err := client.NewClient("https://yno-mngapi.netvolante.jp", opts...)
+func NewClient(baseURL, apiKey string, opts ...client.Option) (*ynoClient, error) {
+	opts = append(opts, client.WithHeader("X-Yamaha-YNO-MngAPI-Key", apiKey))
+
+	client, err := client.NewClient(baseURL, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ynoClient{
-		APIKey:        apiKey,
-		MngAPIVersion: MngAPIVersion,
-		client:        client,
+		APIKey: apiKey,
+		client: client,
 	}, nil
 }

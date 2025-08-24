@@ -1,6 +1,10 @@
 package yno
 
-import "context"
+import (
+	"context"
+
+	"github.com/murasame29/yno-sdk/client"
+)
 
 type GetDeviceStatsRequest struct {
 	Type         *DeviceStatType `json:"Type,omitempty"`
@@ -108,13 +112,18 @@ type DeviceStatistic struct {
 	Value     int `json:"Val"`
 }
 
-func (c *ynoClient) GetDeviceStatistic(ctx context.Context, requestBody *GetDeviceStatsRequest) (*GetDeviceStatsResponse, error) {
+func (c *ynoClient) GetDeviceStatistic(ctx context.Context, requestBody *GetDeviceStatsRequest, opts ...OptionFunc) (*GetDeviceStatsResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
 
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
+	}
+
 	var responseBody GetDeviceStatsResponse
-	err := c.client.Post(ctx, "routers/_search", requestBody, &responseBody)
+	err := c.client.Post(ctx, "routers/_search", requestBody, &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}

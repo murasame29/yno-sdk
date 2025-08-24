@@ -3,6 +3,8 @@ package yno
 import (
 	"context"
 	"fmt"
+
+	"github.com/murasame29/yno-sdk/client"
 )
 
 type SearchRouterRequest struct {
@@ -104,13 +106,18 @@ type UpdateRotuerResponse struct {
 	Data RouterResponseRouter `json:"Data"`
 }
 
-func (c *ynoClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterRequest) (*SearchRouterResponse, error) {
+func (c *ynoClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterRequest, opts ...OptionFunc) (*SearchRouterResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
 
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
+	}
+
 	var responseBody SearchRouterResponse
-	err := c.client.Post(ctx, "routers/_search", requestBody, &responseBody)
+	err := c.client.Post(ctx, "routers/_search", requestBody, &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,13 +125,18 @@ func (c *ynoClient) SearchRotuer(ctx context.Context, requestBody *SearchRouterR
 	return &responseBody, nil
 }
 
-func (c *ynoClient) UpdateRotuer(ctx context.Context, serialNumber string, requestBody *RouterAssignedObject) (*UpdateRotuerResponse, error) {
+func (c *ynoClient) UpdateRotuer(ctx context.Context, serialNumber string, requestBody *RouterAssignedObject, opts ...OptionFunc) (*UpdateRotuerResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
 
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
+	}
+
 	var responseBody UpdateRotuerResponse
-	err := c.client.Put(ctx, fmt.Sprintf("routers/%s", serialNumber), requestBody, &responseBody)
+	err := c.client.Put(ctx, fmt.Sprintf("routers/%s", serialNumber), requestBody, &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}

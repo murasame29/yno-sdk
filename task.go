@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+
+	"github.com/murasame29/yno-sdk/client"
 )
 
 type CreateTaskRequest struct {
@@ -124,13 +126,17 @@ type CommandResultDetail struct {
 	ExitCode ExitCode `json:"ExitCode"`
 }
 
-func (c *ynoClient) CreateTask(ctx context.Context, requestBody *CreateTaskRequest) (*CreateTaskResponse, error) {
+func (c *ynoClient) CreateTask(ctx context.Context, requestBody *CreateTaskRequest, opts ...OptionFunc) (*CreateTaskResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
 
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
+	}
 	var responseBody CreateTaskResponse
-	err := c.client.Post(ctx, "tasks", requestBody, &responseBody)
+	err := c.client.Post(ctx, "tasks", requestBody, &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +144,18 @@ func (c *ynoClient) CreateTask(ctx context.Context, requestBody *CreateTaskReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) GetExecuteTask(ctx context.Context, taskID string, requestQuery *GetExecuteTaskQuery) (*ExecuteTaskResponse, error) {
+func (c *ynoClient) GetExecuteTask(ctx context.Context, taskID string, requestQuery *GetExecuteTaskQuery, opts ...OptionFunc) (*ExecuteTaskResponse, error) {
 	if err := requestQuery.Validate(); err != nil {
 		return nil, err
 	}
 
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
+	}
+
 	var responseBody ExecuteTaskResponse
-	err := c.client.Get(ctx, fmt.Sprintf("tasks/%s", taskID), requestQuery.Map(), &responseBody)
+	err := c.client.Get(ctx, fmt.Sprintf("tasks/%s", taskID), requestQuery.Map(), &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}

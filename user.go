@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"regexp"
 	"unicode/utf8"
+
+	"github.com/murasame29/yno-sdk/client"
 )
 
 const (
@@ -206,13 +208,18 @@ type DeleteUserResponseData struct {
 	Result string `json:"Result"`
 }
 
-func (c *ynoClient) CreateUser(ctx context.Context, requestBody *CreateUserRequest) (*CreateuserResponse, error) {
+func (c *ynoClient) CreateUser(ctx context.Context, requestBody *CreateUserRequest, opts ...OptionFunc) (*CreateuserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
+	}
+
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
 	}
 
 	var responseBody CreateuserResponse
-	err := c.client.Post(ctx, "/users", requestBody, &responseBody)
+	err := c.client.Post(ctx, "/users", requestBody, &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -220,13 +227,18 @@ func (c *ynoClient) CreateUser(ctx context.Context, requestBody *CreateUserReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) SearchUser(ctx context.Context, requestBody *SearchUserRequest) (*SearchUserResponse, error) {
+func (c *ynoClient) SearchUser(ctx context.Context, requestBody *SearchUserRequest, opts ...OptionFunc) (*SearchUserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
+	}
+
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
 	}
 
 	var responseBody SearchUserResponse
-	err := c.client.Post(ctx, "/users/_search", requestBody, &responseBody)
+	err := c.client.Post(ctx, "/users/_search", requestBody, &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -234,13 +246,18 @@ func (c *ynoClient) SearchUser(ctx context.Context, requestBody *SearchUserReque
 	return &responseBody, nil
 }
 
-func (c *ynoClient) UpdateUser(ctx context.Context, accountName string, requestBody *UpdateUserRequest) (*UpdateUserResponse, error) {
+func (c *ynoClient) UpdateUser(ctx context.Context, accountName string, requestBody *UpdateUserRequest, opts ...OptionFunc) (*UpdateUserResponse, error) {
 	if err := requestBody.Validate(); err != nil {
 		return nil, err
 	}
 
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
+	}
+
 	var responseBody UpdateUserResponse
-	err := c.client.Post(ctx, fmt.Sprintf("/users/%s", accountName), requestBody, &responseBody)
+	err := c.client.Post(ctx, fmt.Sprintf("/users/%s", accountName), requestBody, &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -248,9 +265,14 @@ func (c *ynoClient) UpdateUser(ctx context.Context, accountName string, requestB
 	return &responseBody, nil
 }
 
-func (c *ynoClient) DeleteUser(ctx context.Context, accountName string) (*DeleteUserResponse, error) {
+func (c *ynoClient) DeleteUser(ctx context.Context, accountName string, opts ...OptionFunc) (*DeleteUserResponse, error) {
+	var clientOpts []client.Option
+	for _, optFunc := range opts {
+		clientOpts = optFunc(clientOpts)
+	}
+
 	var responseBody DeleteUserResponse
-	err := c.client.Delete(ctx, fmt.Sprintf("/users/%s", accountName), &responseBody)
+	err := c.client.Delete(ctx, fmt.Sprintf("/users/%s", accountName), &responseBody, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
